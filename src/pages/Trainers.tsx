@@ -30,69 +30,99 @@ const Trainers = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTrainer, setSelectedTrainer] = useState<Trainer | null>(null);
 
-  // Mock trainers data
-  const trainers: Trainer[] = [
-    {
-      id: "TR-01",
-      name: "Ahmed Hassan",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ahmed",
-      specialization: "Leadership",
-      rating: 4.8,
-      location: "Cairo",
-      experience: 5,
-      trainings: 42,
-      availability: "available",
-      skills: ["Team Building", "Strategic Planning", "Conflict Resolution"],
-    },
-    {
-      id: "TR-02",
-      name: "Sara Mohamed",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sara",
-      specialization: "Communication",
-      rating: 4.9,
-      location: "Alexandria",
-      experience: 7,
-      trainings: 65,
-      availability: "busy",
-      skills: ["Public Speaking", "Presentation Skills", "Negotiation"],
-    },
-    {
-      id: "TR-03",
-      name: "Mohamed Ali",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mohamed",
-      specialization: "Project Management",
-      rating: 4.7,
-      location: "Cairo",
-      experience: 6,
-      trainings: 38,
-      availability: "available",
-      skills: ["Agile", "Scrum", "Risk Management", "Budgeting"],
-    },
-    {
-      id: "TR-04",
-      name: "Layla Mahmoud",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Layla",
-      specialization: "Technical Skills",
-      rating: 4.6,
-      location: "Giza",
-      experience: 4,
-      trainings: 29,
-      availability: "unavailable",
-      skills: ["Web Development", "Data Analysis", "Programming"],
-    },
-    {
-      id: "TR-05",
-      name: "Omar Khaled",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Omar",
-      specialization: "Soft Skills",
-      rating: 4.5,
-      location: "Alexandria",
-      experience: 3,
-      trainings: 24,
-      availability: "available",
-      skills: ["Emotional Intelligence", "Time Management", "Teamwork"],
-    },
-  ];
+  // Fetch trainers from API
+  const fetchTrainers = async () => {
+    setIsLoading(true);
+    try {
+      const data = await getTrainers();
+      setTrainersList(data);
+    } catch (error) {
+      console.error("Error fetching trainers:", error);
+      toast({
+        title: "Failed to load trainers",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Load trainers when component mounts
+  useEffect(() => {
+    fetchTrainers();
+  }, []);
+
+  // Fallback to mock data if API fails
+  const trainers: Trainer[] =
+    trainersList.length > 0
+      ? trainersList
+      : [
+          {
+            id: "TR-01",
+            name: "Ahmed Hassan",
+            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ahmed",
+            specialization: "Leadership",
+            rating: 4.8,
+            location: "Cairo",
+            experience: 5,
+            trainings: 42,
+            availability: "available",
+            skills: [
+              "Team Building",
+              "Strategic Planning",
+              "Conflict Resolution",
+            ],
+          },
+          {
+            id: "TR-02",
+            name: "Sara Mohamed",
+            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sara",
+            specialization: "Communication",
+            rating: 4.9,
+            location: "Alexandria",
+            experience: 7,
+            trainings: 65,
+            availability: "busy",
+            skills: ["Public Speaking", "Presentation Skills", "Negotiation"],
+          },
+          {
+            id: "TR-03",
+            name: "Mohamed Ali",
+            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mohamed",
+            specialization: "Project Management",
+            rating: 4.7,
+            location: "Cairo",
+            experience: 6,
+            trainings: 38,
+            availability: "available",
+            skills: ["Agile", "Scrum", "Risk Management", "Budgeting"],
+          },
+          {
+            id: "TR-04",
+            name: "Layla Mahmoud",
+            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Layla",
+            specialization: "Technical Skills",
+            rating: 4.6,
+            location: "Giza",
+            experience: 4,
+            trainings: 29,
+            availability: "unavailable",
+            skills: ["Web Development", "Data Analysis", "Programming"],
+          },
+          {
+            id: "TR-05",
+            name: "Omar Khaled",
+            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Omar",
+            specialization: "Soft Skills",
+            rating: 4.5,
+            location: "Alexandria",
+            experience: 3,
+            trainings: 24,
+            availability: "available",
+            skills: ["Emotional Intelligence", "Time Management", "Teamwork"],
+          },
+        ];
 
   const getAvailabilityBadge = (availability: string) => {
     switch (availability) {

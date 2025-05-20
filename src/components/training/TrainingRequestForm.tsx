@@ -145,27 +145,85 @@ const TrainingRequestForm = ({
   ];
 
   // Handle form submission
-  const handleFormSubmit = (data: z.infer<typeof formSchema>) => {
+  const handleFormSubmit = async (data: z.infer<typeof formSchema>) => {
     console.log("Form submitted:", data);
-    if (onSubmit) {
-      onSubmit(data);
+
+    if (!isOnline && !requestId) {
+      toast({
+        title: "Cannot submit while offline",
+        description:
+          "Your request will be saved locally and submitted when you reconnect.",
+        variant: "warning",
+      });
+      // In a real app, we would store this in IndexedDB for later sync
     }
 
-    // Update status based on role
+    try {
+      // If we're on step 2 as SV, fetch AI recommendations
+      if (userRole === "SV" && step === 1) {
+        await fetchRecommendedTrainers(data);
+      }
+
+      // Submit to API if online
+      if (isOnline) {
+        if (requestId) {
+          await updateTrainingRequest(requestId, {
+            ...data,
+            status: getNextStatus(),
+            updated_by: user?.id,
+          });
+        } else {
+          await createTrainingRequest({
+            ...data,
+            status: "pending_sv_approval",
+            requested_by: user?.id,
+            region: user?.region,
+            department: user?.department,
+          });
+        }
+      }
+
+      if (onSubmit) {
+        onSubmit(data);
+      }
+
+      // Update status based on role
+      setRequestStatus(getNextStatus());
+
+      // Move to next step if applicable
+      if (step < getMaxSteps()) {
+        setStep(step + 1);
+      }
+
+      toast({
+        title: "Request updated",
+        description: requestId
+          ? "Training request updated successfully"
+          : "Training request created successfully",
+      });
+    } catch (error) {
+      console.error("Error submitting training request:", error);
+      toast({
+        title: "Error",
+        description:
+          "There was an error processing your request. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Get the next status based on current role
+  const getNextStatus = () => {
     if (userRole === "DV") {
-      setRequestStatus("pending_sv_approval");
+      return "pending_sv_approval";
     } else if (userRole === "SV") {
-      setRequestStatus("pending_pm_approval");
+      return "pending_pm_approval";
     } else if (userRole === "PM") {
-      setRequestStatus("approved");
+      return "approved";
     } else if (userRole === "TR") {
-      setRequestStatus("completed");
+      return "completed";
     }
-
-    // Move to next step if applicable
-    if (step < getMaxSteps()) {
-      setStep(step + 1);
-    }
+    return requestStatus;
   };
 
   // Get max steps based on user role

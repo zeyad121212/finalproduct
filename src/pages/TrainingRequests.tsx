@@ -132,25 +132,34 @@ const TrainingRequests = () => {
                   <TabsTrigger value="completed">Completed</TabsTrigger>
                 </TabsList>
                 <div className="mt-4 space-y-3">
-                  {requests.map((request) => (
-                    <div
-                      key={request.id}
-                      className={`cursor-pointer rounded-lg border p-3 transition-colors hover:bg-accent/50 ${selectedRequest === request.id ? "border-primary bg-accent" : ""}`}
-                      onClick={() => handleSelectRequest(request.id)}
-                    >
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-medium">{request.title}</h3>
-                        {getStatusBadge(request.status)}
-                      </div>
-                      <div className="mt-2 flex items-center justify-between text-sm text-muted-foreground">
-                        <div className="flex items-center gap-2">
-                          <FileText className="h-4 w-4" />
-                          {request.id}
-                        </div>
-                        <div>{new Date(request.date).toLocaleDateString()}</div>
-                      </div>
+                  {isLoading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+                      <span className="ml-2">Loading requests...</span>
                     </div>
-                  ))}
+                  ) : (
+                    displayRequests.map((request) => (
+                      <div
+                        key={request.id}
+                        className={`cursor-pointer rounded-lg border p-3 transition-colors hover:bg-accent/50 ${selectedRequest === request.id ? "border-primary bg-accent" : ""}`}
+                        onClick={() => handleSelectRequest(request.id)}
+                      >
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-medium">{request.title}</h3>
+                          {getStatusBadge(request.status)}
+                        </div>
+                        <div className="mt-2 flex items-center justify-between text-sm text-muted-foreground">
+                          <div className="flex items-center gap-2">
+                            <FileText className="h-4 w-4" />
+                            {request.id}
+                          </div>
+                          <div>
+                            {new Date(request.date).toLocaleDateString()}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </Tabs>
             </CardContent>

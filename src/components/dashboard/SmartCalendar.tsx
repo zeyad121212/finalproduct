@@ -276,7 +276,11 @@ const SmartCalendar: React.FC<SmartCalendarProps> = ({
                     >
                       <Filter className="mr-2 h-4 w-4" /> Reset Filters
                     </Button>
-                    <Button variant="outline" className="w-full">
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={syncWithGoogleCalendar}
+                    >
                       <RefreshCw className="mr-2 h-4 w-4" /> Sync with Google
                     </Button>
                   </div>

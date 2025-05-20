@@ -144,13 +144,24 @@ const ChatSystem = () => {
     },
   ]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (messageInput.trim() === "") return;
+    if (!selectedConversation) return;
 
+    if (!isOnline) {
+      toast({
+        title: "Cannot send message while offline",
+        description: "Your message will be sent when you reconnect.",
+        variant: "warning",
+      });
+      // In a real app, we would store this in IndexedDB for later sync
+    }
+
+    // Optimistically add message to UI
     const newMessage: Message = {
       id: Date.now().toString(),
       sender: "You",
-      senderRole: "CC",
+      senderRole: user?.role || "CC",
       content: messageInput,
       timestamp: new Date().toLocaleTimeString([], {
         hour: "2-digit",
@@ -160,6 +171,25 @@ const ChatSystem = () => {
 
     setMessages([...messages, newMessage]);
     setMessageInput("");
+
+    // Send to API if online
+    if (isOnline && user) {
+      try {
+        await sendMessage(
+          selectedConversation.id,
+          user.id,
+          messageInput,
+          selectedConversation.isGroup,
+        );
+      } catch (error) {
+        console.error("Error sending message:", error);
+        toast({
+          title: "Failed to send message",
+          description: "Please try again later.",
+          variant: "destructive",
+        });
+      }
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

@@ -25,6 +25,7 @@ dist-ssr
 
 !node_modules/.vite
 
+# Tempo specific files
 **/tempobook/dynamic/
 **/tempobook/storyboards/
 

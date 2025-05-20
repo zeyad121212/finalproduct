@@ -1,52 +1,38 @@
-import { Suspense, lazy } from "react";
-import { useRoutes, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useRoutes,
+} from "react-router-dom";
 import routes from "tempo-routes";
-
-// Layouts
-import DashboardLayout from "./components/layout/DashboardLayout";
-
-// Pages
-const Login = lazy(() => import("./pages/Login"));
-const Dashboard = lazy(() => import("./pages/Dashboard"));
-const Calendar = lazy(() => import("./pages/Calendar"));
-const TrainingRequests = lazy(() => import("./pages/TrainingRequests"));
-const Messages = lazy(() => import("./pages/Messages"));
-const Trainers = lazy(() => import("./pages/Trainers"));
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import Calendar from "./pages/Calendar";
+import Messages from "./pages/Messages";
+import Trainers from "./pages/Trainers";
+import TrainingRequests from "./pages/TrainingRequests";
 
 function App() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex h-screen w-screen items-center justify-center">
-          Loading...
-        </div>
-      }
-    >
-      <>
-        <Routes>
-          <Route path="/login" element={<Login />} />
+    <Router>
+      {/* For the tempo routes */}
+      {import.meta.env.VITE_TEMPO && useRoutes(routes)}
 
-          <Route path="/" element={<DashboardLayout />}>
-            <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="calendar" element={<Calendar />} />
-            <Route path="training-requests" element={<TrainingRequests />} />
-            <Route path="messages" element={<Messages />} />
-            <Route path="trainers" element={<Trainers />} />
-          </Route>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/calendar" element={<Calendar />} />
+        <Route path="/messages" element={<Messages />} />
+        <Route path="/trainers" element={<Trainers />} />
+        <Route path="/training-requests" element={<TrainingRequests />} />
 
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        {/* Add this before any catchall route */}
+        {import.meta.env.VITE_TEMPO && <Route path="/tempobook/*" />}
 
-          {/* Tempo routes for storyboards */}
-          {import.meta.env.VITE_TEMPO === "true" && (
-            <Route path="/tempobook/*" />
-          )}
-        </Routes>
-
-        {/* Tempo routes for storyboards */}
-        {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
-      </>
-    </Suspense>
+        {/* Catchall route */}
+        <Route path="*" element={<Login />} />
+      </Routes>
+    </Router>
   );
 }
 
